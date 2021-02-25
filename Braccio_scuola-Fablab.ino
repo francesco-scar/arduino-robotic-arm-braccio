@@ -55,7 +55,7 @@ void setup() {
   // Attach the links to the inverse kinematic model
   InverseK.attach(base_link, upperarm, forearm, hand);
 
-  Serial.println(F("Arduino Braccio robotic arm loaned by local Fablab.\n\nFor software implementation and other details look at https://github.com/francesco-scar/arduino-robotic-arm-braccio\n\nThis project is possible thanks to the help of many open source contributors, thank you.\n\n"));
+  Serial.println(F("Arduino Braccio robotic arm loaned by local Fablab.\n\nFor software implementation and other details look at https://github.com/francesco-scar/arduino-robotic-arm-braccio\n\nThis project was realized thanks to the help of many open source contributors, thank you.\n\n"));
 
   delay(4000);
 
