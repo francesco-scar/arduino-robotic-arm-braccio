@@ -4,6 +4,8 @@
   See https://github.com/francesco-scar/arduino-robotic-arm-braccio for more informations about this project
 */
 
+#define DEMO_MODE 2      // If > 0 the arm will loop between the n default positions 
+
 #include <Braccio.h>
 #include <Servo.h>
 #include <Wire.h>
@@ -23,7 +25,9 @@ int offsetAngle[6] = {0, 5, 0, 8, 0, 0};
 int maxAngleAllowed[6] = {180, 180, 180, 180, 180, 90};
 int minAngleAllowed[6] = {0, 0, 0, 0, 0, 0};
 
-int savedPositionsAngles[16][6];
+int savedPositionsAngles[16][6] = { {0, 0, 0, 0, 0, 0},
+                                    {90, 90, 90, 90, 90, 90}
+                                  };
 int nSavedPositions = 0;
 
 
@@ -51,9 +55,14 @@ void setup() {
   // Attach the links to the inverse kinematic model
   InverseK.attach(base_link, upperarm, forearm, hand);
 
-  Serial.println(F("Arduino Braccio robotic arm borrowed by local Fablab.\n\nFor software implementation and other details look at https://github.com/francesco-scar/arduino-robotic-arm-braccio\n\nThis project is possible thanks to the help of many open source contributors, thank you.\n\n"));
+  Serial.println(F("Arduino Braccio robotic arm loaned by local Fablab.\n\nFor software implementation and other details look at https://github.com/francesco-scar/arduino-robotic-arm-braccio\n\nThis project is possible thanks to the help of many open source contributors, thank you.\n\n"));
 
   delay(4000);
+
+  if (DEMO_MODE){
+    nSavedPositions = DEMO_MODE;
+    replicateSaved();
+  }
 
   Serial.println("Start 10 readings to get valid controller result");
   for (int i = 0; i < 10; i++) {
@@ -73,7 +82,7 @@ void loop() {
     M3=elbow degrees. Allowed values from 0 to 180 degrees
     M4=wrist vertical degrees. Allowed values from 0 to 180 degrees
     M5=wrist rotation degrees. Allowed values from 0 to 180 degrees
-    M6=gripper degrees. Allowed values from 10 to 73 degrees. 10: the toungue is open, 73: the gripper is closed.
+    M6=gripper degrees. Allowed values from 10 to 73 degrees. 10: the toungue is open, 73: the gripper is closed. [I will use 0-90 to be sure]
   */
 
   nunchuk_read();
@@ -211,7 +220,7 @@ void replicateSaved() {
   delay(2000);
   int currentSaved = -1;
   nunchuk_read();
-  while (!(nunchuk_buttonC() && nunchuk_buttonZ())) {
+  while (!(nunchuk_buttonC() && nunchuk_buttonZ()) || DEMO_MODE) {
     currentSaved = (currentSaved + 1) % nSavedPositions;
     Braccio.ServoMovement(20, savedPositionsAngles[currentSaved][0],  savedPositionsAngles[currentSaved][1], savedPositionsAngles[currentSaved][2], savedPositionsAngles[currentSaved][3], savedPositionsAngles[currentSaved][4],  savedPositionsAngles[currentSaved][5]);
     delay(500);
